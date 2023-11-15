@@ -1,0 +1,7 @@
+{
+    "name": "Lego Project",
+    "jwtPrivateKey": "lego_jwtPrivateKey",
+    "dbPass": "dbPass",
+    "PORT": "PORT",
+    "DEBUG":"DEBUG"
+}
