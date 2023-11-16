@@ -8,35 +8,35 @@ const upload = require('../middleware/multer');
 
 router.post('/', upload.array("images", 10), async (req, res) => {
     try {
-        const { title, price, rating, description, numInStock } = req.body;
-        const images = req.files;
-        const { error } = validateProduct(req.body);
-
-        if (error) return res.status(400).send(error.details[0].message);
-
-        const product = await Product.create({ title, price, rating, description, numInStock });
-
-        if (!product) {
-            return res.status(500).send('Error creating the product');
+      const { title, price, rating, description, numInStock } = req.body;
+      const images = req.files;
+      const { error } = validateProduct(req.body);
+  
+      if (error) return res.status(400).send(error.details[0].message);
+  
+      const product = await Product.create({ title, price, rating, description, numInStock });
+  
+      if (!product) {
+        return res.status(500).send('Error creating the product');
+      }
+  
+      if (images && images.length > 0) {
+        const createdImages = [];
+        for (const file of images) {
+          const image = await Image.create({ url: file.path });
+          createdImages.push(image);
         }
-
-        if (images && images.length > 0) {
-            const createdImages = [];
-            images.forEach(async (file)=>{
-                const image = await Image.create({url: file.path})
-                createdImages.push(image);
-            })
-            await product.setImages(createdImages);
-            res.status(200).send({ product, images: createdImages });
-        } else {
-            res.status(200).send(product);
-        }
-
+        await product.setImages(createdImages);
+        res.status(200).send({ product, images: createdImages });
+      } else {
+        res.status(200).send(product);
+      }
+  
     } catch (error) {
-        res.status(500).send(error.message);
-        debug(error.message);
+      res.status(500).send(error.message);
+      debug(error.message);
     }
-});
+  });
 
 
 
