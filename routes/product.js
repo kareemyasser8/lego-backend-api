@@ -6,16 +6,11 @@ const router = express.Router();
 const debug = require('debug')('app:startup');
 const upload = require('../middleware/multer');
 
-router.post('/',upload.array("images"),async (req, res) => {
+router.post('/', upload.array("images", 10), async (req, res) => {
     try {
-        console.log(req.body);
-        // console.log(req.files);
-
         const { title, price, rating, description, numInStock } = req.body;
         const images = req.files;
         const { error } = validateProduct(req.body);
-
-        console.log('images: ', images)
 
         if (error) return res.status(400).send(error.details[0].message);
 
@@ -26,19 +21,17 @@ router.post('/',upload.array("images"),async (req, res) => {
         }
 
         if (images && images.length > 0) {
-            const imagePromises = images.map(async (file) => {
-                return await Image.create({ url: file.path }); // Use file.path or adjust based on your multer setup
-            });
-
-            const createdImages = await Promise.all(imagePromises);
-
-            // Associate the created images with the product
+            const createdImages = [];
+            images.forEach(async (file)=>{
+                const image = await Image.create({url: file.path})
+                createdImages.push(image);
+            })
             await product.setImages(createdImages);
-
             res.status(200).send({ product, images: createdImages });
         } else {
             res.status(200).send(product);
         }
+
     } catch (error) {
         res.status(500).send(error.message);
         debug(error.message);
