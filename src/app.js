@@ -26,7 +26,7 @@ app.use('/api/products/', products)
 
 
 const port = process.env.PORT || 3000
-sequelize.sync()
+sequelize.sync({})
     .then(result => {
         app.listen(port, () => {
             debug(`listening on port ${port}...`);
