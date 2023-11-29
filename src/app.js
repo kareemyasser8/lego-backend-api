@@ -6,6 +6,7 @@ const cors = require('cors')
 const debug = require('debug')('app:startup');
 const app = express();
 const sequelize = require('../utils/database');
+const path = require('path')
 
 const auth = require('../routes/auth');
 const courses = require('../routes/courses')
@@ -16,6 +17,8 @@ app.use(express.json())
 
 app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'))
+
+app.use("/api/images", express.static('images'));
 app.use(helmet());
 app.use(cors());
 
