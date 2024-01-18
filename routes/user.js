@@ -1,3 +1,4 @@
+const auth = require('../middleware/auth');
 const express = require('express');
 const router = express.Router();
 const _ = require('lodash');
@@ -18,11 +19,13 @@ router.get('/', async (req, res) => {
 });
 
 
-router.get('/:id', async (req, res) => {
+router.get('/me', auth, async (req, res) => {
     try {
-        const userId = req.params.id;
-        const user = await User.findAll({ where: { id: userId } });
-
+        const userId = req.user.id;
+        const user = await User.findAll({ 
+            where: { id: userId },
+            attributes: { exclude: ['password'] }
+         });
         res.status(200).send(user);
     } catch (err) {
         res.status(500).send(err);

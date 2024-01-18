@@ -34,7 +34,12 @@ const User = sequelize.define('User', {
 });
 
 User.prototype.generateAuthToken = function () {
-    const token = jwt.sign({ id: this.id }, process.env.jwtPrivateKey)
+    const token = jwt.sign({
+        id: this.id,
+        isAdmin: this.isAdmin
+        },
+        process.env.jwtPrivateKey,
+        { expiresIn: '1h' })
     return token
 }
 

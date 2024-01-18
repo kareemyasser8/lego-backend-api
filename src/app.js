@@ -12,6 +12,8 @@ const auth = require('../routes/auth');
 const courses = require('../routes/courses')
 const users = require('../routes/user');
 const products = require('../routes/product');
+const productFiltersOptions = require('../routes/productFilterOptions');
+const productSortOptions = require('../routes/productSortOptions');
 
 app.use(express.json())
 
@@ -26,6 +28,8 @@ app.use('/api/courses', courses);
 app.use('/api/users/', users)
 app.use('/api/auth/', auth)
 app.use('/api/products/', products)
+app.use('/api/productFilterOptions/', productFiltersOptions)
+app.use('/api/productSortOptions/', productSortOptions)
 
 
 const port = process.env.PORT || 3000

@@ -1,22 +1,33 @@
 const express = require('express');
 const Product = require('../models/product');
 const Image = require('../models/image');
+const auth = require('../middleware/auth');
 const Joi = require('joi');
 const router = express.Router();
 const debug = require('debug')('app:startup');
 const upload = require('../middleware/multer');
 const { Op } = require('sequelize');
+const extractPriceRanges = require('../helpers/extractPriceRanges')
+const sortingOptions = require('../helpers/productSortOptions');
+const admin = require('../middleware/admin');
 
 
-router.post('/', upload.array("images", 10), async (req, res) => {
+router.post('/', [auth, admin, upload.array("images", 10)], async (req, res) => {
     try {
+
         const { id, title, price, rating, description, numInStock, previews, imgTitles } = req.body;
         const images = req.files;
         const { error } = validateProduct(req.body);
 
         if (error) return res.status(400).send(error.details[0].message);
 
-        const product = await Product.create({ title, price, rating, description, numInStock });
+        const product = await Product.create({
+            title: title,
+            price: price,
+            rating: rating,
+            description: description,
+            numInStock: numInStock
+        });
 
         if (!product) {
             return res.status(500).send('Error creating the product');
@@ -35,30 +46,38 @@ router.post('/', upload.array("images", 10), async (req, res) => {
 
 router.get('/', async (req, res) => {
     try {
+        const { price, theme, ordering, search } = req.query;
+
         const page = parseInt(req.query.page) || 1;
         const pageSize = parseInt(req.query.pageSize) || 10;
         const offset = (page - 1) * pageSize;
 
-        const whereClause = {};
+        let whereClause = {};
+        let orderClause = [];
 
-        if (req.query.minPrice && req.query.maxPrice)
-            whereClause.price = {
-                [Op.between]: [req.query.minPrice, req.query.maxPrice]
+        if (ordering && sortingOptions[ordering]) {
+            const order = sortingOptions[ordering];
+            if (order.length != 0) {
+                orderClause.push(order);
             }
+        }
 
-        if (req.query.title)
-            whereClause.title = {
-                [Op.like]: `%${req.query.title}%`
-            }
-
-        if (req.query.minRating)
-            whereClause.rating = {
-                [Op.gte]: `%${req.query.minRating}%`
-            }
+        if (price) {
+            let priceOptions = price.split(',');
+            whereClause = {
+                [Op.or]: priceOptions.map((textPrice) => {
+                    let priceFilterRange = extractPriceRanges(textPrice);
+                    return priceFilterRange.max !== undefined ?
+                        { price: { [Op.between]: [priceFilterRange.min, priceFilterRange.max] } } :
+                        { price: { [Op.gte]: priceFilterRange.min } };
+                })
+            };
+        }
 
         const products = await Product.findAll({
             include: [{ model: Image }],
             where: whereClause,
+            order: orderClause,
             limit: pageSize,
             offset: offset,
         });
@@ -73,6 +92,7 @@ router.get('/', async (req, res) => {
         const result = {
             page: page,
             pageSize: pageSize,
+            count: totalProducts,
             totalPages: totalPages,
             hasNextPage: hasNextPage,
             hasPrevPage: hasPrevPage,
@@ -80,7 +100,6 @@ router.get('/', async (req, res) => {
         };
 
         res.status(200).send(result);
-
     } catch (error) {
         res.status(500).send(error.message);
         debug(error.message);
@@ -102,7 +121,7 @@ router.get('/:id', async (req, res) => {
     }
 })
 
-router.put('/:id', upload.array("images", 10), async (req, res) => {
+router.put('/:id', [auth, admin, upload.array("images", 10)], async (req, res) => {
     try {
         const product_id = req.params.id;
         const product = await Product.findOne({
@@ -147,13 +166,14 @@ router.put('/:id', upload.array("images", 10), async (req, res) => {
 });
 
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', [auth, admin], async (req, res) => {
     try {
         const product_id = req.params.id;
         const product = await Product.findOne({ where: { id: product_id } });
 
         if (!product) return res.status(404).send('Product not found');
 
+        await Image.destroy({ where: { productId: product_id } })
         await Product.destroy({ where: { id: product_id } });
 
         res.status(200).send('Product deleted successfully');
@@ -242,8 +262,6 @@ async function saveImagesInDB(product, images, previews) {
         throw new Error('Creating images failed');
     }
 }
-
-
 
 
 
