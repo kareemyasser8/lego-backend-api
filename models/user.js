@@ -39,7 +39,7 @@ User.prototype.generateAuthToken = function () {
         isAdmin: this.isAdmin
         },
         process.env.jwtPrivateKey,
-        { expiresIn: '1h' })
+        { expiresIn: '3h' })
     return token
 }
 

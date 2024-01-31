@@ -1,6 +1,7 @@
 const express = require('express');
-const Product = require('../models/product');
-const Image = require('../models/image');
+// const Product = require('../models/product');
+// const Image = require('../models/image');
+const {Product, Image} = require('../models/index');
 const auth = require('../middleware/auth');
 const Joi = require('joi');
 const router = express.Router();

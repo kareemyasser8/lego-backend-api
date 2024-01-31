@@ -14,6 +14,7 @@ const users = require('../routes/user');
 const products = require('../routes/product');
 const productFiltersOptions = require('../routes/productFilterOptions');
 const productSortOptions = require('../routes/productSortOptions');
+const temporaryCart = require('../routes/temporaryCart');
 
 app.use(express.json())
 
@@ -26,6 +27,7 @@ app.use(cors());
 
 app.use('/api/courses', courses);
 app.use('/api/users/', users)
+app.use('/api/temporaryCart', temporaryCart)
 app.use('/api/auth/', auth)
 app.use('/api/products/', products)
 app.use('/api/productFilterOptions/', productFiltersOptions)

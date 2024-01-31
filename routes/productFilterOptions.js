@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const Product = require('../models/product');
+// const Product = require('../models/product');
+const {Product} = require('../models/index')
 const { Op } = require('sequelize');
 const filtersOptions = require('../helpers/productFilterOptions');
 const extractPriceRanges = require('../helpers/extractPriceRanges');

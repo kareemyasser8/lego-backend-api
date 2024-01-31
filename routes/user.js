@@ -2,7 +2,14 @@ const auth = require('../middleware/auth');
 const express = require('express');
 const router = express.Router();
 const _ = require('lodash');
-const User = require('../models/user');
+const sequelize = require('../utils/database');
+
+// const User = require('../models/user');
+// const Cart = require('../models/cart')
+// const WishList = require('../models/wishlist')
+
+const {User, Cart, WishList} = require('../models/index');
+
 const debug = require('debug')('app:startup');
 const bcrypt = require('bcrypt');
 const validateUser = require('../middleware/validateUser');
@@ -22,10 +29,10 @@ router.get('/', async (req, res) => {
 router.get('/me', auth, async (req, res) => {
     try {
         const userId = req.user.id;
-        const user = await User.findAll({ 
-            where: { id: userId },
+        const user = await User.findAll({
+            where: { id: userId     },
             attributes: { exclude: ['password'] }
-         });
+        });
         res.status(200).send(user);
     } catch (err) {
         res.status(500).send(err);
@@ -48,6 +55,11 @@ router.post('/', async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = await User.create({ fname, lname, email, password: hashedPassword, isAdmin: false });
+        const cart = await Cart.create({});
+        const wishlist = await WishList.create({});
+
+        await user.setCart(cart);
+        await user.setWishList(wishlist)
 
         const token = user.generateAuthToken()
         res.header('x-auth-token', token).status(200).send(_.pick(user, ['fname', 'lname', 'email', 'password']));
@@ -59,23 +71,38 @@ router.post('/', async (req, res) => {
 });
 
 router.delete('/:id', async (req, res) => {
+    const t = await sequelize.transaction();
+    
     try {
         const userId = req.params.id;
 
-        const result = await User.destroy({ where: { id: userId } });
+        const result = await User.destroy({ where: { id: userId }, transaction: t });
 
         if (result === 0) {
+            await t.rollback();
             return res.status(404).send('User not found');
         }
 
+        await Cart.destroy({
+            where: { userId },
+            transaction: t
+        });
+
+        await WishList.destroy({
+            where: { userId },
+            transaction: t
+        });
+
+        await t.commit();
         res.status(200).send('User deleted successfully!!');
         debug(result);
     } catch (error) {
-        res.status(500).send(error);
-        debug(error);
+        await t.rollback();
+        res.status(500).send(error.message);
+        debug(error.message);
     }
 });
 
-
+// console.log(crypto.randomUUID())
 
 module.exports = router;
