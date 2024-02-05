@@ -1,7 +1,5 @@
 const express = require('express');
-// const Product = require('../models/product');
-// const Image = require('../models/image');
-const {Product, Image} = require('../models/index');
+const { Product, Image } = require('../models/index');
 const auth = require('../middleware/auth');
 const Joi = require('joi');
 const router = express.Router();
@@ -11,6 +9,7 @@ const { Op } = require('sequelize');
 const extractPriceRanges = require('../helpers/extractPriceRanges')
 const sortingOptions = require('../helpers/productSortOptions');
 const admin = require('../middleware/admin');
+const PRODUCT_QUANTITY_LIMIT = require("../constants/productQuantityLimit");
 
 
 router.post('/', [auth, admin, upload.array("images", 10)], async (req, res) => {
@@ -110,17 +109,20 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const product_id = req.params.id;
-        const product = await Product.findOne({
+        let product = await Product.findOne({
             where: { id: product_id },
             include: [{ model: Image }]
         });
-        if (!product) res.status(404).send('product not found');
-        res.status(200).send(product);
+        if (!product) return res.status(404).send('Product not found');
+        product.dataValues.limit = PRODUCT_QUANTITY_LIMIT
+
+        return res.status(200).send(product);
     } catch (error) {
         res.status(500).send(error.message);
         debug(error.message);
     }
 })
+
 
 router.put('/:id', [auth, admin, upload.array("images", 10)], async (req, res) => {
     try {

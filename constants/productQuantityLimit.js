@@ -1,0 +1,3 @@
+const PRODUCT_QUANTITY_LIMIT = 5;
+
+module.exports = PRODUCT_QUANTITY_LIMIT;
