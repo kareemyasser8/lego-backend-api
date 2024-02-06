@@ -12,8 +12,7 @@ const WishListProducts = require('./wishList_product')
 Product.hasMany(Image);
 Image.belongsTo(Product, { constraints: true, onDelete: 'CASCADE' });
 
-
-User.hasOne(WishList);
+// User.hasOne(WishList);
 User.hasOne(Cart);
 
 TemporaryCart.belongsToMany(Product, { through: TemporaryCartItem });
@@ -22,6 +21,11 @@ TemporaryCart.hasMany(TemporaryCartItem)
 TemporaryCartItem.belongsTo(TemporaryCart)
 TemporaryCartItem.belongsTo(Product)
 
+WishList.belongsToMany(Product, {through: WishListProducts})
+Product.belongsToMany(WishList, {through: WishListProducts})
+WishList.hasMany(WishListProducts)
+WishListProducts.belongsTo(WishList)
+WishListProducts.belongsTo(Product)
 
 module.exports = {
     Product,

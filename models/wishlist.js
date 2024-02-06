@@ -3,9 +3,9 @@ const sequelize = require("../utils/database");
 
 const WishList = sequelize.define('WishList',{
     id: {
-        type: DataTypes.INTEGER,
-        autoIncrement: true,
+        type: DataTypes.UUID,
         allowNull: false,
+        defaultValue: DataTypes.UUIDV4,
         primaryKey: true
     },
 })
