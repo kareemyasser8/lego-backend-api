@@ -14,12 +14,14 @@ const addOrRemoveProductFromWishList = async (wishListId, product)=>{
             ProductId: product.id,
         })
     } else {
-        result = await WishListProducts.destroy({
+        await WishListProducts.destroy({
             where: {
                 WishListId: wishList.id,
                 ProductId: product.id
             }
         })
+
+        result="product removed from WishList"
     }
 
     return result;
