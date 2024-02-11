@@ -49,7 +49,7 @@ router.post('/', async (req, res) => {
 
         if (!result) res.status(500).send("Failed to add Product to WishList")
 
-        res.status(200).send("Product updated in the Wishlist successfully");
+        res.status(200).send(result);
 
     } catch (error) {
         res.status(500).send(error.message);
@@ -58,22 +58,26 @@ router.post('/', async (req, res) => {
 
 router.get('/', async (req, res) => {
     try {
-        const { productId, wishListId } = req.body;
-        if (!productId) 
-            return res.status(400).send("Product ID is required");
+        const productId = req.query.productId;
+        const wishListId = req.query.wishListId;
 
-        if (!wishListId) 
-            return res.status(400).send("Wishlist ID is required");
+        if (!productId || !wishListId) {
+            return res.status(400).json({ error: "Product ID and Wishlist ID are required" });
+        }
 
         const wishList = await WishList.findByPk(wishListId);
-        if (!wishList) return res.status(404).send("Wishlist is not found");
+        if (!wishList) {
+            return res.status(404).json({ error: "Wishlist not found" });
+        }
 
         const isProductFound = await checkProductInWishList(productId, wishList.id);
         res.status(200).json({ isProductInWishList: isProductFound });
     } catch (error) {
-        res.status(500).send(error.message);
+        console.error("Error in handler:", error);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
+
 
 
 module.exports = router;

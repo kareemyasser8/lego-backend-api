@@ -59,10 +59,14 @@ router.post('/', async (req, res) => {
         const wishlist = await WishList.create({});
 
         await user.setCart(cart);
-        await user.setWishList(wishlist)
+        // await user.setWishList(wishlist)
 
         const token = user.generateAuthToken()
-        res.header('x-auth-token', token).status(200).send(_.pick(user, ['fname', 'lname', 'email', 'password']));
+        res.status(200).send({
+            token: token,
+            user: _.pick(user, ['fname', 'lname', 'email', 'password'])
+          });
+          
         debug(user);
     } catch (error) {
         res.status(500).send(error.message);
