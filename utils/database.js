@@ -6,9 +6,10 @@ const sequelize = new Sequelize(
     'avnadmin',
     process.env.dbPass,
     {
-        logging: process.env.NODE_ENV == "development" ? true : false,
+        // logging: process.env.NODE_ENV == "development" ? true : false,
         dialect: 'mysql',
-        host: 'mysql-306e5a9d-lego-clone-api.a.aivencloud.com:17514'
+        host: 'mysql-306e5a9d-lego-clone-api.a.aivencloud.com',
+        port: '17514'
     }
 );
 
