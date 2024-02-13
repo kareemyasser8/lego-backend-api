@@ -12,8 +12,8 @@ const error = require('../middleware/error')
 
 module.exports = function (app) {
     app.use(express.json())
-    app.use('/test', (req, res) => {
-        res.json({ msg: "Congratulations Kareem, the app is running!!" })
+    app.use('/', (req, res) => {
+       res.send("The server is running!!")
     })
     app.use("/api/images", express.static('images'));
     app.use('/api/courses', courses);

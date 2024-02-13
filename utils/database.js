@@ -2,14 +2,14 @@ const { Sequelize } = require('sequelize');
 const config = require('config');
 
 const sequelize = new Sequelize(
-    'defaultdb',
-    'avnadmin',
+    process.env.dbName,
+    process.env.dbUser,
     process.env.dbPass,
     {
         // logging: process.env.NODE_ENV == "development" ? true : false,
         dialect: 'mysql',
         host: 'mysql-306e5a9d-lego-clone-api.a.aivencloud.com',
-        port: '17514'
+        port: process.env.dbPORT
     }
 );
 
