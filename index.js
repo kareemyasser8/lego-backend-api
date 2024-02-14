@@ -10,7 +10,6 @@ app.use(express.urlencoded({ extended: true }))
 app.use(express.static('public'))
 
 app.use("/api/images", express.static('images'));
-
 require('./startup/prod')(app)
 require('./startup/routes')(app)
 
@@ -24,10 +23,4 @@ sequelize.sync({})
     ).catch(err => {
         debug('Error starting the server:', err);
     });
-
-
-
-
-
-
 

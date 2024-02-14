@@ -1,19 +1,14 @@
 const helmet = require('helmet')
 const cors = require('cors')
 const compression = require('compression');
-// const morgan = require('morgan');
-// const fs = require('fs');
-// const path = require('path');
 
+const corsOptions = {
+    origin: ['http://localhost:5173', 'https://lego-backend-api.vercel.app'],
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204
+  };
+  
 module.exports = (app) => {
-
-    // const accessLogStream = fs.createWriteStream(
-    //     path.join(__dirname, 'access.log'),
-    //     { flags: 'a' }
-    // )
-
+    app.use(cors(corsOptions));
     app.use(helmet());
-    app.use(cors());
     app.use(compression());
-    // app.use(morgan('combined', { stream: accessLogStream }));
 }
