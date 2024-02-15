@@ -14,7 +14,6 @@ const PRODUCT_QUANTITY_LIMIT = require("../constants/productQuantityLimit");
 
 router.post('/', [auth, admin, upload.array("images", 10)], async (req, res) => {
     try {
-
         const { id, title, price, rating, description, numInStock, previews, imgTitles } = req.body;
         const images = req.files;
         const { error } = validateProduct(req.body);
@@ -22,11 +21,11 @@ router.post('/', [auth, admin, upload.array("images", 10)], async (req, res) => 
         if (error) return res.status(400).send(error.details[0].message);
 
         const product = await Product.create({
-            title: title,
-            price: price,
-            rating: rating,
-            description: description,
-            numInStock: numInStock
+            title,
+            price,
+            rating,
+            description,
+            numInStock
         });
 
         if (!product) {
@@ -34,15 +33,16 @@ router.post('/', [auth, admin, upload.array("images", 10)], async (req, res) => 
         }
 
         if (images && images.length > 0) {
-            await saveImagesInDB(product, images, previews)
-            res.status(200).send('product added successfully');
+            await saveImagesInDB(product, images, previews);
         }
 
+        res.status(200).send('product added successfully');
     } catch (error) {
         res.status(500).send(error.message);
         debug(error.message);
     }
 });
+
 
 router.get('/', async (req, res) => {
     try {
