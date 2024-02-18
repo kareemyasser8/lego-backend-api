@@ -61,9 +61,11 @@ router.get('/', async (req, res) => {
         const productId = req.query.productId;
         const wishListId = req.query.wishListId;
 
-        if (!productId || !wishListId) {
-            return res.status(400).json({ error: "Product ID and Wishlist ID are required" });
-        }
+        // if (!productId || !wishListId) {
+        //     return res.status(400).json({ error: "Product ID and Wishlist ID are required" });
+        // }
+        if(!wishListId) return res.status(200).json({isProductInWishList: false})
+
 
         const wishList = await WishList.findByPk(wishListId);
         if (!wishList) {
