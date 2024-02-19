@@ -3,7 +3,7 @@ const cors = require('cors')
 const compression = require('compression');
 
 const corsOptions = {
-  origin: ['http://localhost:5173', 'https://lego-project-pi.vercel.app'],
+  origin: "*",
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   optionsSuccessStatus: 200
 };
